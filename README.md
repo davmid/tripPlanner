@@ -1,6 +1,9 @@
 # tripPlanner
 
-### backend
+## backend
 
-cd backend
-npm run dev
+### run commands :
+
+> cd backend
+
+> npm run dev

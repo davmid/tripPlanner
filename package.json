@@ -4,7 +4,8 @@
     "axios": "^1.8.1",
     "next": "^15.2.1",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-native": "^0.78.0"
   },
   "devDependencies": {
     "@types/axios": "^0.14.4",
