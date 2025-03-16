@@ -2,6 +2,7 @@
   "dependencies": {
     "@prisma/client": "^6.4.1",
     "axios": "^1.8.1",
+    "expo": "^52.0.39",
     "next": "^15.2.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -12,5 +13,11 @@
     "@types/node": "^22.13.9",
     "@types/react": "^19.0.10",
     "prisma": "^6.4.1"
+  },
+  "name": "tripPlanner",
+  "version": "1.0.0",
+  "scripts": {
+    "android": "expo run:android",
+    "ios": "expo run:ios"
   }
 }
