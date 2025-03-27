@@ -5,8 +5,11 @@ import {
   Pressable,
   StyleSheet,
   ScrollView,
+  TouchableOpacity,
 } from 'react-native';
 import dayjs from 'dayjs';
+import { useRouter } from 'expo-router';
+
 
 const DAYS_IN_WEEK = 7;
 
@@ -20,6 +23,7 @@ export default function TabOneScreen(): JSX.Element {
   const [selectedDayIndex, setSelectedDayIndex] = useState<number | null>(
     dayjs().day()
   );
+  const router = useRouter();
 
   const days = getWeekDays();
 
@@ -28,25 +32,34 @@ export default function TabOneScreen(): JSX.Element {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Your Week</Text>
-      {days.map((date, index) => {
-        const isSelected = selectedDayIndex === index + 1;
-        return (
-          <Pressable
-            key={date.toString()}
-            style={[
-              styles.dayCard,
-              isSelected && styles.selectedCard,
-            ]}
-            onPress={() => handleDayPress(index)}
-          >
-            <Text style={styles.dayName}>{date.format('dddd')}</Text>
-            <Text style={styles.dayDate}>{date.format('DD.MM.YYYY')}</Text>
-          </Pressable>
-        );
-      })}
-    </ScrollView>
+    <View style={{ flex: 1 }}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.title}>Your Week</Text>
+        {days.map((date, index) => {
+          const isSelected = selectedDayIndex === index + 1;
+          return (
+            <Pressable
+              key={date.toString()}
+              style={[
+                styles.dayCard,
+                isSelected && styles.selectedCard,
+              ]}
+              onPress={() => handleDayPress(index)}
+            >
+              <Text style={styles.dayName}>{date.format('dddd')}</Text>
+              <Text style={styles.dayDate}>{date.format('DD.MM.YYYY')}</Text>
+            </Pressable>
+          );
+        })}
+      </ScrollView>
+
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => router.push('/add-meeting')}
+      >
+        <Text style={styles.fabText}>+</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
@@ -88,5 +101,26 @@ const styles = StyleSheet.create({
   dayDate: {
     fontSize: 14,
     color: '#666',
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    backgroundColor: '#007bff',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  fabText: {
+    fontSize: 32,
+    color: 'white',
+    lineHeight: 32,
   },
 });
