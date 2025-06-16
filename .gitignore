@@ -1,69 +1,39 @@
+# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+
+# dependencies
 node_modules/
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
 
-.env
-.env.local
-.env.development
-.env.production
-.env.test
-.env.example
-
-.next/
-out/
-
+# Expo
 .expo/
-.expo-shared/
-android/
-ios/
-build/
 dist/
-*.log
-*.tsbuildinfo
+web-build/
+expo-env.d.ts
 
-# Debugging / IDE files
-.vscode/
-.idea/
+# Native
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
 .DS_Store
-Thumbs.db
-*.swp
-*.swo
+*.pem
 
+# local env files
+.env*.local
+
+# typescript
 *.tsbuildinfo
 
-.expo/
-.expo-shared/
-
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.npm/
-.tmp/
-coverage/
-jest/
-cypress/
-
-ios/Pods/
-ios/build/
-ios/*.xcodeproj/project.xcworkspace/
-ios/*.xcodeproj/xcuserdata/
-
-android/.gradle/
-android/.idea/
-android/local.properties
-android/app/build/
-android/app/debug.keystore
-
-prisma/.env
-prisma/migrations/
-
-# PostgreSQL
-*.sql
-*.dump
-postgres-data/
-pgdata/
-
-docker-compose.override.yml
-docker-compose.yml
-.dockerignore
+app-example
