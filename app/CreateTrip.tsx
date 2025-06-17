@@ -1,4 +1,6 @@
+import { useAppNavigation } from '@/hooks/useAppNavigation';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { format } from 'date-fns';
 import React, { useState } from 'react';
 import {
     Platform,
@@ -9,8 +11,6 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-
-import { format } from 'date-fns';
 
 type Location = {
     city: string;
@@ -27,10 +27,7 @@ export default function CreateTrip() {
     const [locations, setLocations] = useState<Location[]>([
         { city: '', country: '', from: new Date(), to: new Date() },
     ]);
-
-    const addLocation = () => {
-        setLocations([...locations, { city: '', country: '', from: new Date(), to: new Date() }]);
-    };
+    const navigation = useAppNavigation();
 
     const updateLocation = (index: number, field: keyof Location, value: any) => {
         const updated = [...locations];
@@ -40,10 +37,6 @@ export default function CreateTrip() {
 
     return (
         <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
-            <View style={styles.headerRow}>
-                <TouchableOpacity><Text style={styles.cancel}>Cancel</Text></TouchableOpacity>
-                <TouchableOpacity><Text style={styles.create}>Create</Text></TouchableOpacity>
-            </View>
 
             <Text style={styles.title}>Trip name</Text>
             <TextInput
@@ -52,8 +45,6 @@ export default function CreateTrip() {
                 placeholder="Enter trip name"
                 style={styles.input}
             />
-
-            <Text style={styles.sectionTitle}>Itinerary</Text>
 
             <View style={styles.dateRow}>
                 <TouchableOpacity style={styles.dateBox} onPress={() => setShowPicker({ field: 'start' })}>
@@ -65,37 +56,6 @@ export default function CreateTrip() {
                     <Text>{format(endDate, 'dd MMM yyyy')}</Text>
                 </TouchableOpacity>
             </View>
-
-            {locations.map((loc, i) => (
-                <View key={i} style={styles.locationBlock}>
-                    <TextInput
-                        placeholder="City"
-                        style={styles.inputSmall}
-                        value={loc.city}
-                        onChangeText={(text) => updateLocation(i, 'city', text)}
-                    />
-                    <TextInput
-                        placeholder="Country"
-                        style={styles.inputSmall}
-                        value={loc.country}
-                        onChangeText={(text) => updateLocation(i, 'country', text)}
-                    />
-                    <View style={styles.dateRow}>
-                        <TouchableOpacity style={styles.dateBox} onPress={() => setShowPicker({ field: 'from', index: i })}>
-                            <Text>From</Text>
-                            <Text>{format(loc.from, 'dd MMM yyyy')}</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.dateBox} onPress={() => setShowPicker({ field: 'to', index: i })}>
-                            <Text>To</Text>
-                            <Text>{format(loc.to, 'dd MMM yyyy')}</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            ))}
-
-            <TouchableOpacity onPress={addLocation} style={styles.addButton}>
-                <Text style={styles.addButtonText}>+ Add Location</Text>
-            </TouchableOpacity>
 
             {showPicker && (
                 <DateTimePicker
@@ -118,6 +78,11 @@ export default function CreateTrip() {
                     }}
                 />
             )}
+
+            <View style={styles.headerRow}>
+                <TouchableOpacity><Text style={styles.cancel} onPress={() => navigation.navigate('Home')}>Cancel</Text></TouchableOpacity>
+                <TouchableOpacity><Text style={styles.create}>Create</Text></TouchableOpacity>
+            </View>
         </ScrollView>
     );
 }
@@ -131,7 +96,7 @@ const styles = StyleSheet.create({
     headerRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 20,
+        marginTop: 32,
     },
     cancel: {
         fontSize: 16,
@@ -145,14 +110,15 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 22,
         fontWeight: 'bold',
-        marginBottom: 10,
+        marginBottom: 32,
+        paddingTop: 32,
     },
     input: {
         borderWidth: 1,
         borderColor: '#ccc',
         borderRadius: 8,
         padding: 10,
-        marginBottom: 20,
+        marginBottom: 16,
     },
     sectionTitle: {
         fontSize: 18,

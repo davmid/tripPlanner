@@ -1,13 +1,7 @@
+import { useAppNavigation } from '@/hooks/useAppNavigation';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React from 'react';
 import { FlatList, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
-type RootStackParamList = {
-  Home: undefined;
-  Create: undefined;
-};
 
 type Trip = {
   id: string;
@@ -44,7 +38,7 @@ const mockTrips: Trip[] = [
 export default function HomeScreen() {
   const today = new Date();
   const year = today.getFullYear();
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation = useAppNavigation();
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
@@ -53,7 +47,7 @@ export default function HomeScreen() {
           <TouchableOpacity onPress={() => {/* handle settings */ }}>
             <Ionicons name="settings-outline" size={28} paddingRight= {8} style={styles.icon} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => {/* handle profile */ }}>
+          <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
             <Ionicons name="person-circle-outline" size={32} style={styles.icon} />
           </TouchableOpacity>
         </View>
