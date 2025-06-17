@@ -1,6 +1,7 @@
+import { supabase } from '@/api/supabaseClient';
 import { useAppNavigation } from '@/hooks/useAppNavigation';
 import { Ionicons } from '@expo/vector-icons';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { FlatList, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 type Trip = {
@@ -39,20 +40,51 @@ export default function HomeScreen() {
   const today = new Date();
   const year = today.getFullYear();
   const navigation = useAppNavigation();
+  const [userEmail, setUserEmail] = useState('');
+  const [userName, setUserName] = useState('');
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+
+      if (!session || error) {
+        navigation.navigate('Auth');
+      }
+    };
+
+    checkSession();
+  }, []);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user }, error } = await supabase.auth.getUser();
+
+      if (error) {
+        console.error('Error fetching user:', error);
+        return;
+      }
+
+      setUserEmail(user?.email ?? '');
+      setUserName(user?.user_metadata?.full_name ?? '');
+    };
+
+    fetchUser();
+  }, []);
+
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
-        <Text style={styles.header}>My Trips</Text>
+        <Text style={styles.welcome}>Hi, {userName}</Text>
         <View style={styles.headerIcons}>
           <TouchableOpacity onPress={() => {/* handle settings */ }}>
-            <Ionicons name="settings-outline" size={28} paddingRight= {8} style={styles.icon} />
+            <Ionicons name="settings-outline" size={28} paddingRight={8} style={styles.icon} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
             <Ionicons name="person-circle-outline" size={32} style={styles.icon} />
           </TouchableOpacity>
         </View>
       </View>
-      <Text style={styles.subheader}>{year}</Text>
+      <Text style={styles.header}>My Trips <Text style={styles.subheader}>{year}</Text></Text>
       <FlatList
         data={mockTrips}
         keyExtractor={(item) => item.id}
@@ -86,6 +118,12 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     backgroundColor: '#f9f7f3',
   },
+  welcome: {
+    fontSize: 32,
+    paddingLeft: 16,
+    fontWeight: 'bold',
+    color: '#fb5607',
+  },
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -100,30 +138,33 @@ const styles = StyleSheet.create({
     color: `#000`,
   },
   header: {
-    fontSize: 28,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#000',
-    paddingLeft: 16,
+    paddingTop: 32,
+    justifyContent: `center`,
+    alignItems: `center`,
+    alignSelf: `center`,
+    marginBottom: 32,
   },
   subheader: {
-    fontSize: 18,
+    fontSize: 20,
     color: '#fb5607',
-    marginBottom: 20,
-    paddingLeft: 16,
+    fontWeight: 'bold',
   },
   card: {
     height: 150,
     overflow: 'hidden',
-    marginBottom: 15,
+    marginBottom: 16,
     justifyContent: 'flex-end',
   },
   overlay: {
     backgroundColor: 'rgba(0,0,0,0.35)',
-    padding: 10,
+    padding: 16,
   },
   date: {
     color: '#fff',
-    fontSize: 12,
+    fontSize: 16,
   },
   title: {
     color: '#fff',

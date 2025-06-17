@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import { supabase } from '@/api/supabaseClient';
+import { useAppNavigation } from '@/hooks/useAppNavigation';
+import React, { useEffect, useState } from 'react';
 import {
+    Alert,
     StyleSheet,
     Text,
     TextInput,
@@ -8,6 +11,7 @@ import {
 } from 'react-native';
 
 export default function AuthScreen() {
+  const navigation = useAppNavigation();
   const [isLogin, setIsLogin] = useState(true);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -16,11 +20,60 @@ export default function AuthScreen() {
 
   const toggleMode = () => setIsLogin(!isLogin);
 
-  const handleAuth = () => {
+  useEffect(() => {
+  const checkSession = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) navigation.navigate('Home'); 
+  };
+
+  checkSession();
+
+  const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+    if (session) navigation.navigate('Home');
+  });
+
+  return () => {
+    listener.subscription.unsubscribe();
+  };
+}, []);
+
+  const handleAuth = async () => {
+    if (!email || !password) {
+      Alert.alert('Please enter email and password');
+      return;
+    }
+
     if (isLogin) {
-      console.log('Logging in with', email, password);
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        Alert.alert('Login failed', error.message);
+      }
     } else {
-      console.log('Registering with', name, email, password, confirmPassword);
+      if (!name.trim()) {
+        Alert.alert('Please enter your name');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        Alert.alert('Passwords do not match');
+        return;
+      }
+
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: name },
+        },
+      });
+
+      if (error) {
+        Alert.alert('Sign up failed', error.message);
+      } else {
+        Alert.alert('Check your email to confirm your account!');
+        setIsLogin(true);
+      }
     }
   };
 
