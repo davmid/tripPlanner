@@ -3,4 +3,5 @@ export type RootStackParamList = {
   Create: undefined;
   Profile: undefined;
   Auth: undefined;
+  TripEdit: { tripId: string };
 };
