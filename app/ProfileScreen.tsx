@@ -185,11 +185,11 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
     },
     logout: {
-        color: '#007bff',
+        color: '#f75330',
         paddingRight: 8,
     },
     editprofile: {
-        color: '#007bff',
+        color: '#f75330',
         paddingRight: 8,
     }
 });

@@ -101,7 +101,7 @@ export default function Account() {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <Text style={styles.title}>Edit Profile</Text>
+      <Text style={styles.title}>Edit <Text style={styles.title2}>Profile</Text></Text>
 
       {/* Form inputs */}
       <View style={styles.inputContainer}>
@@ -163,7 +163,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
-    color: '#333',
+    color: '#fb5607',
+  },
+  title2: {
+    color: '#000',
   },
   inputContainer: {
     width: '100%',

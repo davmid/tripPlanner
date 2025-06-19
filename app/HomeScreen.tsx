@@ -1,9 +1,8 @@
 import { useAppNavigation } from '@/hooks/useAppNavigation';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, Image, ImageBackground, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { supabase } from '../lib/supabaseClient';
-
 
 interface Trip {
   id: string;
@@ -20,34 +19,33 @@ export default function HomeScreen() {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [avatarUrl, setAvatarUrl] = useState('');
   const [loading, setLoading] = useState(true);
-  
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [modalVisible, setModalVisible] = useState(false);
 
   const fallbackImage = 'https://source.unsplash.com/random/800x600/?vacation';
 
   async function getProfile(userId: string) {
-          try {
-              setLoading(true);
-              const { data, error, status } = await supabase
-                  .from('profiles')
-                  .select('avatar_url')
-                  .eq('id', userId)
-                  .single();
-  
-              if (error && status !== 406) {
-                  throw error;
-              }
-  
-              setAvatarUrl(data.avatar_url || '');
-          } catch (error) {
-              if (error instanceof Error) {
-                  Alert.alert(error.message);
-              }
-          } finally {
-              setLoading(false);
-          }
+    try {
+      setLoading(true);
+      const { data, error, status } = await supabase
+        .from('profiles')
+        .select('avatar_url')
+        .eq('id', userId)
+        .single();
+
+      if (error && status !== 406) {
+        throw error;
       }
 
-
+      setAvatarUrl(data.avatar_url || '');
+    } catch (error) {
+      if (error instanceof Error) {
+        Alert.alert(error.message);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
     const checkSession = async () => {
@@ -87,6 +85,12 @@ export default function HomeScreen() {
     fetchUser();
   }, []);
 
+  // Tworzymy listę lat od 2000 do 2025
+  const yearList = [];
+  for (let i = 2010; i <= 2025; i++) {
+    yearList.push(i);
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
@@ -99,14 +103,47 @@ export default function HomeScreen() {
             <Image
               source={{ uri: avatarUrl || 'https://source.unsplash.com/random/100x100/?avatar' }}
               style={styles.avatar}
-             />
+            />
           </TouchableOpacity>
         </View>
       </View>
-      <Text style={styles.header}>My Trips <Text style={styles.subheader}>{new Date().getFullYear()}</Text></Text>
+      
+        <TouchableOpacity
+          onPress={() => setModalVisible(true)}>
+          <Text style={styles.header}>My Trips 
+          <Text style={styles.subheader}> {selectedYear}</Text>
+          </Text>
+        </TouchableOpacity>
+
+
+      {/* Modal z listą lat */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalHeader}>Select <Text  style={styles.modalHeader2}>Year</Text></Text>
+            {yearList.map((year) => (
+              <TouchableOpacity 
+                key={year}
+                style={styles.yearOption}
+                onPress={() => {
+                  setSelectedYear(year);
+                  setModalVisible(false);
+                }}
+              >
+                <Text style={styles.yearText}>{year}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      </Modal>
 
       <FlatList
-        data={trips}
+        data={trips.filter(trip => new Date(trip.start_date).getFullYear() === selectedYear)} // Filtrujemy wycieczki na podstawie wybranego roku
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => navigation.navigate('TripEdit', { tripId: item.id })}>
@@ -142,6 +179,14 @@ const styles = StyleSheet.create({
   icon: { color: '#000' },
   header: { fontSize: 20, fontWeight: 'bold', color: '#000', paddingTop: 32, alignSelf: 'center', marginBottom: 32 },
   subheader: { fontSize: 20, color: '#fb5607', fontWeight: 'bold' },
+  button: { backgroundColor: '#fb5607', padding: 10, borderRadius: 5, alignSelf: 'center', marginBottom: 20 },
+  buttonText: { color: '#fff', fontSize: 16 },
+  modalBackground: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
+  modalContainer: { width: 300, backgroundColor: 'white', padding: 20, borderRadius: 10 },
+  modalHeader: { fontSize: 20, fontWeight: 'bold', marginBottom: 15, textAlign: 'center', color: '#fb5607' },
+  modalHeader2: { fontSize: 20, fontWeight: 'bold', color: '#000' },
+  yearOption: { paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#ccc' },
+  yearText: { fontSize: 18, textAlign: 'center' },
   card: { height: 150, overflow: 'hidden', marginBottom: 16, justifyContent: 'flex-end' },
   overlay: { backgroundColor: 'rgba(0,0,0,0.35)', padding: 16 },
   date: { color: '#fff', fontSize: 16 },
