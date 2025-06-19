@@ -1,8 +1,9 @@
 import { useAppNavigation } from '@/hooks/useAppNavigation';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
-import { FlatList, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { supabase } from '../lib/supabaseClient';
+
 
 interface Trip {
   id: string;
@@ -17,8 +18,34 @@ export default function HomeScreen() {
   const [userEmail, setUserEmail] = useState('');
   const [userName, setUserName] = useState('');
   const [trips, setTrips] = useState<Trip[]>([]);
+  const [avatarUrl, setAvatarUrl] = useState('');
+  const [loading, setLoading] = useState(true);
+  
 
   const fallbackImage = 'https://source.unsplash.com/random/800x600/?vacation';
+
+  async function getProfile(userId: string) {
+          try {
+              setLoading(true);
+              const { data, error, status } = await supabase
+                  .from('profiles')
+                  .select('avatar_url')
+                  .eq('id', userId)
+                  .single();
+  
+              if (error && status !== 406) {
+                  throw error;
+              }
+  
+              setAvatarUrl(data.avatar_url || '');
+          } catch (error) {
+              if (error instanceof Error) {
+                  Alert.alert(error.message);
+              }
+          } finally {
+              setLoading(false);
+          }
+      }
 
 
 
@@ -43,6 +70,7 @@ export default function HomeScreen() {
 
       setUserEmail(user.email ?? '');
       setUserName(user.user_metadata?.full_name ?? '');
+      await getProfile(user.id);
 
       const { data, error: tripError } = await supabase
         .from('trips')
@@ -68,7 +96,10 @@ export default function HomeScreen() {
             <Ionicons name="settings-outline" size={28} style={styles.icon} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-            <Ionicons name="person-circle-outline" size={32} style={styles.icon} />
+            <Image
+              source={{ uri: avatarUrl || 'https://source.unsplash.com/random/100x100/?avatar' }}
+              style={styles.avatar}
+             />
           </TouchableOpacity>
         </View>
       </View>
@@ -118,4 +149,5 @@ const styles = StyleSheet.create({
   addTripText: { fontSize: 16, fontWeight: '500', paddingTop: 32, alignSelf: 'center', color: '#000', marginBottom: 10 },
   buttonAddTrip: { backgroundColor: '#fb5607', width: 64, height: 64, borderRadius: 32, justifyContent: 'center', alignItems: 'center', alignSelf: 'center', marginTop: 10, marginBottom: 32},
   buttonAddTripText: { color: '#fff', fontWeight: '500', fontSize: 32},
+  avatar: { width: 40, height: 40, borderRadius: 20, marginLeft: 16 },
 });

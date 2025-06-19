@@ -1,7 +1,8 @@
 import { useAppNavigation } from '@/hooks/useAppNavigation'; // Twoja hook do nawigacji
+import { Button } from '@rneui/themed';
 import { Session } from '@supabase/supabase-js';
 import React, { useEffect, useState } from 'react';
-import { Alert, Button, Image, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Image, StyleSheet, Text, TextInput, View } from 'react-native';
 import { supabase } from '../lib/supabaseClient'; // Twoja konfiguracja Supabase
 
 export default function Account() {
@@ -99,52 +100,52 @@ export default function Account() {
 
   return (
     <View style={styles.container}>
-      <View style={[styles.verticallySpaced, styles.mt20]}>
-        <TextInput
-          style={styles.input}
-          value={loading ? 'Loading...' : session?.user?.email || ''}
-          editable={false}
-          placeholder="Email"
-        />
-      </View>
-      <View style={styles.verticallySpaced}>
+      {/* Header */}
+      <Text style={styles.title}>Edit Profile</Text>
+
+      {/* Form inputs */}
+      <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
           placeholder="Username"
           value={username || ''}
           onChangeText={setUsername}
         />
-      </View>
-      <View style={styles.verticallySpaced}>
         <TextInput
           style={styles.input}
-          placeholder="Image URL"
+          placeholder="Avatar Image URL"
           value={avatarUrl || ''}
           onChangeText={setAvatarUrl}
         />
       </View>
 
-      {/* Podgląd obrazu */}
+      {/* Avatar Preview */}
       {avatarUrl ? (
         <View style={styles.imageContainer}>
-          <Image source={{ uri: avatarUrl }} style={styles.image} />
+          <Image source={{ uri: avatarUrl }} style={styles.avatar} />
         </View>
       ) : (
         <View style={styles.imageContainer}>
-          <Text>No image available</Text>
+          <Text style={styles.imageText}>No image available</Text>
         </View>
       )}
 
-      <View style={[styles.verticallySpaced, styles.mt20]}>
+      {/* Buttons */}
+      <View style={styles.buttonContainer}>
         <Button
-          title={loading ? 'Loading ...' : 'Update'}
-          onPress={() => updateProfile({ username, avatar_url: avatarUrl })}
-          disabled={loading}
+          title="Cancel"
+          onPress={() => navigation.goBack()}
+          buttonStyle={styles.cancelButton}
         />
-      </View>
-
-      <View style={styles.verticallySpaced}>
-        <Button title="Cancel" onPress={() => navigation.goBack()} />
+        <Button
+          title={loading ? 'Loading ...' : 'Update Profile'}
+          onPress={async () => {
+            await updateProfile({ username, avatar_url: avatarUrl });
+            navigation.navigate('Profile');
+          }}
+          disabled={loading}
+          buttonStyle={styles.updateButton}
+        />
       </View>
     </View>
   );
@@ -152,33 +153,57 @@ export default function Account() {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 40,
-    padding: 12,
+    flex: 1,
+    padding: 60,
+    backgroundColor: '#f9f7f3',
+    justifyContent: 'flex-start',
   },
-  verticallySpaced: {
-    paddingTop: 4,
-    paddingBottom: 4,
-    alignSelf: 'stretch',
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+    color: '#333',
   },
-  mt20: {
-    marginTop: 20,
+  inputContainer: {
+    width: '100%',
+    marginBottom: 20,
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
     padding: 12,
-    marginBottom: 16,
+    marginBottom: 12,
+    fontSize: 16,
+    backgroundColor: '#fff',
   },
   imageContainer: {
-    marginTop: 10,
-    marginBottom: 10,
+    justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: 20,
   },
-  image: {
+  avatar: {
     width: 100,
     height: 100,
-    borderRadius: 8,
-    marginTop: 8,
+    borderRadius: 50,
+  },
+  imageText: {
+    fontSize: 16,
+    color: '#aaa',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    alignContent: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginTop: 20,
+  },
+  updateButton: {
+    backgroundColor: '#4CAF50',
+    marginBottom: 10,
+  },
+  cancelButton: {
+    backgroundColor: '#f75330',
   },
 });

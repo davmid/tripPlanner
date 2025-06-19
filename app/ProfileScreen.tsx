@@ -1,14 +1,18 @@
 import { useAppNavigation } from '@/hooks/useAppNavigation';
+import { Button } from '@rneui/themed';
 import React, { useEffect, useState } from 'react';
 import { Alert, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Icon from 'react-native-vector-icons/AntDesign';
 import { supabase } from '../lib/supabaseClient';
 
 export default function ProfileScreen() {
     const navigation = useAppNavigation();
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
-    const [avatarUrl, setAvatarUrl] = useState(''); // Default avatar
+    const [avatarUrl, setAvatarUrl] = useState('');
     const [loading, setLoading] = useState(true);
+    const [username, setUsername] = useState('');
+    const [tripCount, setTripCount] = useState(0);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -16,36 +20,57 @@ export default function ProfileScreen() {
             if (!user || error) return;
             setEmail(user.email ?? '');
             setFullName(user.user_metadata?.full_name ?? 'Traveler');
-
             await getProfile(user.id);
+            await getTripCount(user.id);
         };
         fetchUser();
     }, []);
 
+    async function getTripCount(userId: string) {
+        try {
+            setLoading(true);
+            const { data, error, status, count } = await supabase
+                .from('trips')
+                .select('*', { count: 'exact' })
+                .eq('user_id', userId);
+
+            if (error && status !== 406) {
+                throw error;
+            }
+
+            setTripCount(count ? parseInt(count.toString(), 10) : 0);
+        } catch (error) {
+            if (error instanceof Error) {
+                Alert.alert(error.message);
+            }
+        } finally {
+            setLoading(false);
+        }
+    }
+
     async function getProfile(userId: string) {
         try {
-          setLoading(true);
-          const { data, error, status } = await supabase
-            .from('profiles')
-            .select(' avatar_url')
-            .eq('id', userId)
-            .single();
-    
-          if (error && status !== 406) {
-            throw error;
-          }
-    
-          if (data) {
+            setLoading(true);
+            const { data, error, status } = await supabase
+                .from('profiles')
+                .select('username, avatar_url')
+                .eq('id', userId)
+                .single();
+
+            if (error && status !== 406) {
+                throw error;
+            }
+
             setAvatarUrl(data.avatar_url || '');
-          }
+            setUsername(data.username || '');
         } catch (error) {
-          if (error instanceof Error) {
-            Alert.alert(error.message);
-          }
+            if (error instanceof Error) {
+                Alert.alert(error.message);
+            }
         } finally {
-          setLoading(false);
+            setLoading(false);
         }
-      }
+    }
 
     const handleLogout = async () => {
         const { error } = await supabase.auth.signOut();
@@ -57,42 +82,59 @@ export default function ProfileScreen() {
     };
 
     return (
-        <View style={styles.container}>
-            <Image
-                source={{ uri: avatarUrl || 'https://source.unsplash.com/random/100x100/?avatar' }}
-                style={styles.avatar}
-            />
-            <Text style={styles.name}>{fullName}</Text>
-            <Text style={styles.email}>{email}</Text>
-
-            <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Edit Profile</Text>
-                <TouchableOpacity style={styles.option}>
-                    <Text>Change Password</Text>
-                </TouchableOpacity>
-            </View>
-
-            <View style={styles.footerRow}>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Text style={styles.cancel}>Cancel</Text>
+        <View style={styles.mainContainer}>
+            {/* Poprawione wyrównanie przycisków */}
+            <View style={styles.topBar}>
+                <TouchableOpacity onPress={handleLogout}>
+                    <Icon name="logout" size={30} color="#007bff" style={styles.logout} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => navigation.navigate('ProfileUpdate')}>
-                    <Text style={styles.editprofile}>Edit Profile</Text>
+                    <Icon name="edit" size={30} color="#007bff" style={styles.editprofile} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={handleLogout}>
-                    <Text style={styles.logout}>Logout</Text>
-                </TouchableOpacity>
+            </View>
+            <View style={styles.container}>
+                <Image
+                    source={{ uri: avatarUrl || 'https://source.unsplash.com/random/100x100/?avatar' }}
+                    style={styles.avatar}
+                />
+                <Text style={styles.name}>{fullName}</Text>
+                <Text style={styles.email}>{email}</Text>
+
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>About You</Text>
+                    <View style={styles.option}>
+                        <Text>Full Name: {fullName}</Text>
+                        <Text>Username: {username}</Text>
+                        <Text>Email: {email}</Text>
+                        <Text>Trips Count: {tripCount}</Text>
+                    </View>
+                </View>
+
+                <View style={styles.footerRow}>
+                    <Button buttonStyle={styles.cancel} containerStyle={styles.buttonContainer} onPress={() => navigation.navigate('Home')}>
+                        Go Back
+                    </Button>
+                </View>
             </View>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
+    mainContainer: {
+        flex: 1,
+        backgroundColor: '#f9f7f3',
+        paddingTop: 60,
+    },
+    topBar: {
+        flexDirection: 'row', // Przyciski obok siebie
+        justifyContent: 'space-between', // Rozdzielone na lewą i prawą stronę
+        paddingHorizontal: 20, // Odstęp od krawędzi
+        marginBottom: 20, // Odstęp od sekcji poniżej
+    },
     container: {
         flex: 1,
-        backgroundColor: '#fff',
         alignItems: 'center',
-        paddingTop: 60,
         paddingHorizontal: 20,
     },
     avatar: {
@@ -132,17 +174,22 @@ const styles = StyleSheet.create({
     },
     cancel: {
         fontSize: 16,
-        color: '#888',
-        paddingLeft: 8 
+        backgroundColor: '#f75330',
+        borderRadius: 5,
+    },
+    buttonContainer: {
+        flex: 1,
+        height: 50,
+        width: '100%',
+        marginVertical: 10,
+        justifyContent: 'flex-end',
     },
     logout: {
-        fontSize: 16,
-        color: '#ff0000',
-        paddingRight: 8
+        color: '#007bff',
+        paddingRight: 8,
     },
     editprofile: {
-        fontSize: 16,
         color: '#007bff',
-        paddingRight: 8
+        paddingRight: 8,
     }
 });
