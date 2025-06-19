@@ -1,17 +1,17 @@
-import { supabase } from '@/api/supabaseClient';
 import { useAppNavigation } from '@/hooks/useAppNavigation';
 import { RootStackParamList } from '@/types/RootStackParamList';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
+import { supabase } from '../lib/supabaseClient';
 
 const fallbackImage = 'https://source.unsplash.com/random/800x600/?vacation';
 type TripEditRouteProp = RouteProp<RootStackParamList, 'TripEdit'>;
@@ -33,12 +33,15 @@ export default function TripEdit() {
   const [endDate, setEndDate] = useState('');
   const [background, setBackground] = useState('');
   const [locations, setLocations] = useState<Location[]>([]);
-  const route = useRoute();
+  const [isTripIdValid, setIsTripIdValid] = useState(true); // Stan do sprawdzenia ważności tripId
   
-  if (!tripId) {
-    return <Text style={{ marginTop: 100, textAlign: 'center' }}>Invalid trip ID.</Text>;
-  }
+  // Sprawdź tripId po załadowaniu hooków
   useEffect(() => {
+    if (!tripId) {
+      setIsTripIdValid(false); // Jeśli tripId jest nieprawidłowe, ustaw flagę
+      return; // Zakończ execution useEffect, ale hooki zostały już wywołane
+    }
+
     const fetchTripData = async () => {
       const { data, error } = await supabase.from('trips').select('*').eq('id', tripId).single();
       if (data) {
@@ -69,6 +72,10 @@ export default function TripEdit() {
   }, {});
 
   const dateKeys = Object.keys(groupedByDate).sort();
+
+  if (!isTripIdValid) {
+    return <Text style={{ marginTop: 100, textAlign: 'center' }}>Invalid trip ID.</Text>; // Komunikat o błędzie, jeśli tripId jest nieprawidłowe
+  }
 
   return (
     <View style={styles.container}>
@@ -119,6 +126,8 @@ export default function TripEdit() {
     </View>
   );
 }
+
+
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },

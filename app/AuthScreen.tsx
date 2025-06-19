@@ -1,14 +1,23 @@
-import { supabase } from '@/api/supabaseClient';
 import { useAppNavigation } from '@/hooks/useAppNavigation';
 import React, { useEffect, useState } from 'react';
 import {
-    Alert,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  AppState,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
+import { supabase } from '../lib/supabaseClient';
+
+AppState.addEventListener('change', (state) => {
+  if (state === 'active') {
+    supabase.auth.startAutoRefresh()
+  } else {
+    supabase.auth.stopAutoRefresh()
+  }
+})
 
 export default function AuthScreen() {
   const navigation = useAppNavigation();
@@ -19,6 +28,8 @@ export default function AuthScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
 
   const toggleMode = () => setIsLogin(!isLogin);
+
+  
 
   useEffect(() => {
   const checkSession = async () => {
@@ -128,7 +139,10 @@ export default function AuthScreen() {
       </TouchableOpacity>
     </View>
   );
+
+  
 }
+
 
 const styles = StyleSheet.create({
   container: {

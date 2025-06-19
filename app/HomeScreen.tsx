@@ -1,8 +1,8 @@
-import { supabase } from '@/api/supabaseClient';
 import { useAppNavigation } from '@/hooks/useAppNavigation';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import { FlatList, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { supabase } from '../lib/supabaseClient';
 
 interface Trip {
   id: string;
@@ -19,6 +19,8 @@ export default function HomeScreen() {
   const [trips, setTrips] = useState<Trip[]>([]);
 
   const fallbackImage = 'https://source.unsplash.com/random/800x600/?vacation';
+
+
 
   useEffect(() => {
     const checkSession = async () => {

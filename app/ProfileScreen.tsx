@@ -1,12 +1,14 @@
-import { supabase } from '@/api/supabaseClient';
 import { useAppNavigation } from '@/hooks/useAppNavigation';
 import React, { useEffect, useState } from 'react';
 import { Alert, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { supabase } from '../lib/supabaseClient';
 
 export default function ProfileScreen() {
     const navigation = useAppNavigation();
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
+    const [avatarUrl, setAvatarUrl] = useState(''); // Default avatar
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -14,9 +16,36 @@ export default function ProfileScreen() {
             if (!user || error) return;
             setEmail(user.email ?? '');
             setFullName(user.user_metadata?.full_name ?? 'Traveler');
+
+            await getProfile(user.id);
         };
         fetchUser();
     }, []);
+
+    async function getProfile(userId: string) {
+        try {
+          setLoading(true);
+          const { data, error, status } = await supabase
+            .from('profiles')
+            .select(' avatar_url')
+            .eq('id', userId)
+            .single();
+    
+          if (error && status !== 406) {
+            throw error;
+          }
+    
+          if (data) {
+            setAvatarUrl(data.avatar_url || '');
+          }
+        } catch (error) {
+          if (error instanceof Error) {
+            Alert.alert(error.message);
+          }
+        } finally {
+          setLoading(false);
+        }
+      }
 
     const handleLogout = async () => {
         const { error } = await supabase.auth.signOut();
@@ -30,7 +59,7 @@ export default function ProfileScreen() {
     return (
         <View style={styles.container}>
             <Image
-                source={{ uri: 'https://i.pravatar.cc/150?img=3' }}
+                source={{ uri: avatarUrl || 'https://source.unsplash.com/random/100x100/?avatar' }}
                 style={styles.avatar}
             />
             <Text style={styles.name}>{fullName}</Text>
@@ -46,6 +75,9 @@ export default function ProfileScreen() {
             <View style={styles.footerRow}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Text style={styles.cancel}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('ProfileUpdate')}>
+                    <Text style={styles.editprofile}>Edit Profile</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={handleLogout}>
                     <Text style={styles.logout}>Logout</Text>
@@ -108,4 +140,9 @@ const styles = StyleSheet.create({
         color: '#ff0000',
         paddingRight: 8
     },
+    editprofile: {
+        fontSize: 16,
+        color: '#007bff',
+        paddingRight: 8
+    }
 });

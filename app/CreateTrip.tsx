@@ -1,4 +1,3 @@
-import { supabase } from '@/api/supabaseClient';
 import { useAppNavigation } from '@/hooks/useAppNavigation';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { decode } from 'base64-arraybuffer';
@@ -6,16 +5,17 @@ import { format } from 'date-fns';
 import * as ImagePicker from 'expo-image-picker';
 import React, { useEffect, useState } from 'react';
 import {
-    Alert,
-    Image,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Image,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
+import { supabase } from '../lib/supabaseClient';
 
 export default function CreateTrip() {
   const navigation = useAppNavigation();
