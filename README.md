@@ -84,33 +84,58 @@ Aplikacja została zaprojektowana w architekturze **klient-serwer**, co zapewnia
 
 ## Pierwsze kroki
 
-<!--
-Tutaj umieść instrukcje dotyczące instalacji zależności, konfiguracji środowiska i uruchomienia projektu lokalnie.
+Ta sekcja pomoże Ci uruchomić projekt lokalnie na Twoim komputerze w celach deweloperskich i testowych.
 
 ### Wymagania wstępne
 
-- Node.js (wersja X.X)
-- npm / yarn
-- Docker (opcjonalnie)
+Upewnij się, że masz zainstalowane następujące narzędzia:
+
+* [Node.js](https://nodejs.org/) (zalecana wersja LTS)
+* [Yarn](https://yarnpkg.com/) lub npm (dołączony do Node.js)
+* [Expo Go](https://expo.dev/go) (aplikacja na telefon do testowania)
 
 ### Instalacja
 
-1. Sklonuj repozytorium
-   ```sh
-   git clone [https://github.com/twoja-nazwa-uzytkownika/trip-lo.git](https://github.com/twoja-nazwa-uzytkownika/trip-lo.git)
-   ```
-2. Zainstaluj zależności
-   ```sh
-   npm install
-   ```
-3. Uruchom aplikację
-   ```sh
-   npm start
-   ```
--->
+1.  **Sklonuj repozytorium**
+    ```sh
+    git clone [https://github.com/twoja-nazwa-uzytkownika/trip-lo.git](https://github.com/twoja-nazwa-uzytkownika/trip-lo.git)
+    cd trip-lo
+    ```
+
+2.  **Zainstaluj zależności projektu**
+    Użyj `yarn` lub `npm`, aby zainstalować wszystkie wymagane pakiety.
+    ```sh
+    yarn install
+    ```
+    lub
+    ```sh
+    npm install
+    ```
+
+3.  **Konfiguracja zmiennych środowiskowych**
+    Skopiuj plik `.env.example` i zmień jego nazwę na `.env`. Następnie uzupełnij go swoimi kluczami API (np. dla Supabase, Google Maps).
+    ```sh
+    cp .env.example .env
+    ```
+    Otwórz plik `.env` i uzupełnij wartości:
+    ```
+    SUPABASE_URL=twoj-supabase-url
+    SUPABASE_ANON_KEY=twoj-supabase-anon-key
+    GOOGLE_MAPS_API_KEY=twoj-google-maps-api-key
+    ```
+
+### Uruchomienie aplikacji
+
+1.  **Uruchom serwer deweloperski Expo**
+    ```sh
+    yarn start
+    ```
+    lub
+    ```sh
+    npm start
+    ```
+
+2.  **Otwórz aplikację na swoim urządzeniu**
+    Po uruchomieniu serwera, w terminalu pojawi się kod QR. Zeskanuj go za pomocą aplikacji Expo Go na swoim telefonie (Android lub iOS), aby otworzyć projekt.
 
 ---
-
-## Licencja
-
-Projekt jest dystrybuowany na licencji MIT. Zobacz `LICENSE.txt`, aby uzyskać więcej informacji.
