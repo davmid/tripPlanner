@@ -1,6 +1,6 @@
 # TRIP.LO - Aplikacja Planera Podróży 🌍✈️
 
-[![Status Builda](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com)
+[![Status Builda](https://img.shields.io/badge/build-inprogress-brightgreen)](https://github.com)
 [![Licencja](https://img.shields.io/badge/license-MIT-blue)](https://github.com)
 
 **TRIP.LO** to nowoczesna aplikacja mobilna do planowania i zarządzania podróżami, która integruje wszystkie niezbędne funkcje w jednym miejscu. Projekt ma na celu uproszczenie organizacji wyjazdów zarówno prywatnych, jak i służbowych.
